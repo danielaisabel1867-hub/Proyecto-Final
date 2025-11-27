@@ -110,6 +110,36 @@ const RandomUserService = {
     }
 };
 
+// --- AUTENTICACIÓN (SIMPLIFICADA) ---
+const AuthService = {
+    KEY: 'chambly_auth_v1',
+    defaultAuth: { isLoggedIn: false, user: null },
+    get: function() {
+        const saved = localStorage.getItem(this.KEY);
+        return saved ? JSON.parse(saved) : this.defaultAuth;
+    },
+    save: function(authObj) {
+        localStorage.setItem(this.KEY, JSON.stringify(authObj));
+    },
+    login: function(email, password) {
+        return new Promise((resolve, reject) => {
+            // Validación mínima para demo
+            if (!email || !password) return reject(new Error('Email y contraseña son requeridos'));
+            if (password.length < 3) return reject(new Error('Contraseña muy corta'));
+
+            // Crear usuario demo a partir del email
+            const name = email.split('@')[0].replace(/\.|_/g, ' ').split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+            const user = { name, email };
+            const auth = { isLoggedIn: true, user };
+            this.save(auth);
+            resolve(user);
+        });
+    },
+    logout: function() {
+        this.save(this.defaultAuth);
+    }
+};
+
 // --- UTILIDADES ---
 function getYoutubeId(url) {
     if (!url) return null;
@@ -243,8 +273,18 @@ const app = {
     },
 
     updateHeader: function() {
+        const auth = AuthService.get();
         const profile = StorageService.get();
-        document.getElementById('header-username').innerText = profile.name.split(' ')[0];
+        const headerNameEl = document.getElementById('header-username');
+        if (!headerNameEl) return;
+        const headerHello = document.getElementById('header-hello');
+        if (auth.isLoggedIn && auth.user) {
+            headerNameEl.innerText = auth.user.name.split(' ')[0];
+            if (headerHello) headerHello.style.display = '';
+        } else {
+            headerNameEl.innerText = 'Iniciar sesión';
+            if (headerHello) headerHello.style.display = 'none';
+        }
     },
 
     // --- VISTAS ---
@@ -395,6 +435,11 @@ const app = {
     },
 
     renderCVBuilder: function() {
+        // Solo accesible si está autenticado
+        const auth = AuthService.get();
+        if (!auth.isLoggedIn) {
+            return this.renderLogin();
+        }
         const profile = StorageService.get();
         
         // HTML Experiencia
@@ -424,7 +469,8 @@ const app = {
                     <div class="flex justify-between mb-8 no-print">
                         <button onclick="app.renderHome()" class="text-slate-500 font-bold flex items-center gap-2"><i data-lucide="arrow-left" class="w-4"></i> Salir</button>
                         <!-- BOTON GUARDAR -->
-                        <div class="flex gap-2">
+                            <div class="flex gap-2">
+                                ${AuthService.get().isLoggedIn ? `<button onclick="app.logout()" class="px-4 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 transition">Cerrar sesión</button>` : ''}
                             <button id="btn-random-user" onclick="app.fetchRandomUser()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">Generar perfil aleatorio</button>
                             <button id="btn-save-profile" onclick="app.forceSave()" class="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-700 shadow-lg">
                                 <i data-lucide="save" class="w-4"></i> Guardar Cambios
@@ -481,7 +527,64 @@ const app = {
         lucide.createIcons();
     },
 
-    renderProfile: function() { this.renderCVBuilder(); },
+    renderProfile: function() { 
+        const auth = AuthService.get();
+        if (!auth.isLoggedIn) return this.renderLogin();
+        return this.renderCVBuilder();
+    },
+
+    renderLogin: function() {
+        ui.showLoader();
+        ui.content.innerHTML = `
+            <div class="max-w-md mx-auto p-8 mt-12 bg-white rounded-3xl shadow-lg">
+                <h2 class="text-2xl font-black text-slate-900 mb-4">Iniciar sesión</h2>
+                <p class="text-slate-500 mb-6">Ingresa tu correo y contraseña para acceder a tu perfil.</p>
+                <form onsubmit="app.handleLoginSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Correo</label>
+                        <input id="login-email" type="email" required class="w-full p-3 border border-slate-200 rounded-lg outline-none focus:border-lime-400" placeholder="nombre@ejemplo.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1">Contraseña</label>
+                        <input id="login-password" type="password" required class="w-full p-3 border border-slate-200 rounded-lg outline-none focus:border-lime-400" placeholder="Contraseña">
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <button type="submit" class="bg-lime-400 text-slate-900 px-4 py-2 rounded-lg font-bold hover:bg-lime-500">Entrar</button>
+                        <button type="button" onclick="app.renderHome()" class="text-slate-500 px-4 py-2 rounded-lg hover:bg-slate-50">Cancelar</button>
+                    </div>
+                    <p class="text-xs text-slate-400">Demo: acepta cualquier correo, contraseña mínima 3 caracteres.</p>
+                </form>
+            </div>
+        `;
+    },
+
+    handleLoginSubmit: function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = 'Entrando...'; }
+        AuthService.login(email, password)
+            .then(user => {
+                // Sincronizar el perfil guardado con el usuario autenticado (demo)
+                const p = StorageService.get();
+                p.name = user.name;
+                p.email = user.email;
+                StorageService.save(p);
+                this.updateHeader();
+                this.renderCVBuilder();
+                alert('Has iniciado sesión como ' + user.name);
+            })
+            .catch(err => this.mostrarError(err.message || 'No se pudo iniciar sesión'))
+            .finally(() => { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Entrar'; } });
+    },
+
+    logout: function() {
+        AuthService.logout();
+        this.updateHeader();
+        this.renderHome();
+        alert('Has cerrado sesión');
+    },
 
     // Consumes la API Random User y actualiza el perfil local
     fetchRandomUser: function() {
