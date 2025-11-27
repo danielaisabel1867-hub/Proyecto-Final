@@ -97,6 +97,19 @@ const StorageService = {
     }
 };
 
+// Servicio: Consume la API https://randomuser.me/api/ y devuelve el primer usuario
+const RandomUserService = {
+    getRandomUser: function() {
+        return fetch('https://randomuser.me/api/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            });
+    }
+};
+
 // --- UTILIDADES ---
 function getYoutubeId(url) {
     if (!url) return null;
@@ -412,6 +425,7 @@ const app = {
                         <button onclick="app.renderHome()" class="text-slate-500 font-bold flex items-center gap-2"><i data-lucide="arrow-left" class="w-4"></i> Salir</button>
                         <!-- BOTON GUARDAR -->
                         <div class="flex gap-2">
+                            <button id="btn-random-user" onclick="app.fetchRandomUser()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">Generar perfil aleatorio</button>
                             <button id="btn-save-profile" onclick="app.forceSave()" class="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-700 shadow-lg">
                                 <i data-lucide="save" class="w-4"></i> Guardar Cambios
                             </button>
@@ -422,10 +436,13 @@ const app = {
                     </div>
 
                     <div class="print:p-4">
-                        <div class="border-b-4 border-lime-400 pb-6 mb-6">
-                            <h1 class="text-4xl font-black text-slate-900 uppercase outline-none focus:bg-lime-50 rounded px-2 -ml-2" contenteditable="true" onblur="app.updateField('name', this.innerText)">${profile.name}</h1>
+                        <div class="border-b-4 border-lime-400 pb-6 mb-6 flex items-center gap-6">
+                            ${profile.photo ? `<img src="${profile.photo}" alt="Avatar" class="w-20 h-20 rounded-full shadow-lg object-cover">` : ''}
+                            <div>
+                                <h1 class="text-4xl font-black text-slate-900 uppercase outline-none focus:bg-lime-50 rounded px-2 -ml-2" contenteditable="true" onblur="app.updateField('name', this.innerText)">${profile.name}</h1>
                             <p class="text-xl text-lime-600 font-bold outline-none focus:bg-lime-50 rounded px-2 -ml-2" contenteditable="true" onblur="app.updateField('headline', this.innerText)">${profile.headline}</p>
                             <p class="text-sm text-slate-500 mt-2" contenteditable="true" onblur="app.updateField('email', this.innerText)">${profile.email} | ${profile.phone} | ${profile.location}</p>
+                            </div>
                         </div>
 
                         <div class="mb-8">
@@ -466,6 +483,37 @@ const app = {
 
     renderProfile: function() { this.renderCVBuilder(); },
 
+    // Consumes la API Random User y actualiza el perfil local
+    fetchRandomUser: function() {
+        const btn = document.getElementById('btn-random-user');
+        if (btn) { btn.disabled = true; btn.innerText = 'Cargando...'; }
+        RandomUserService.getRandomUser()
+            .then(data => this.mostrarRandomUser(data))
+            .catch(error => this.mostrarError('No se pudieron cargar los datos'))
+            .finally(() => { if (btn) { btn.disabled = false; btn.innerText = 'Generar perfil aleatorio'; } });
+    },
+
+    mostrarRandomUser: function(data) {
+        if (!data || !data.results || data.results.length === 0) return this.mostrarError('Usuario no encontrado');
+        const u = data.results[0];
+        const name = `${u.name.first} ${u.name.last}`;
+        const updated = StorageService.get();
+        updated.name = name;
+        updated.email = u.email || updated.email;
+        updated.phone = u.phone || updated.phone;
+        updated.location = `${u.location.city}, ${u.location.country}` || updated.location;
+        // Agrega una foto en caso de que exista
+        updated.photo = u.picture?.large || updated.photo || '';
+        StorageService.save(updated);
+        // Mostrar cambios en la UI
+        this.renderCVBuilder();
+    },
+
+    mostrarError: function(message) {
+        console.error('Error:', message);
+        alert(message);
+    },
+
     // MANEJO DATOS
     updateField: function(field, value) { const p = StorageService.get(); p[field] = value; StorageService.save(p); this.updateHeader(); },
     forceSave: function() { ui.showSaveSuccess(); }, // Visual feedback
@@ -495,3 +543,7 @@ const app = {
 };
 
 document.addEventListener('DOMContentLoaded', () => app.init());
+
+// Compatibilidad con la muestra del usuario: funciones globales con nombres sencillos
+function mostrarDatos(data) { app.mostrarRandomUser(data); }
+function mostrarError(message) { app.mostrarError(message); }
