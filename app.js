@@ -270,7 +270,7 @@ const app = {
 
                     <!-- EMPRESAS REALES (API MAPPED) -->
                     <div class="max-w-6xl mx-auto border-t border-slate-100 pt-10">
-                        <p class="text-xs font-bold text-slate-400 uppercase mb-8 tracking-widest">Empresas Aliadas (API Data)</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-8 tracking-widest">Empresas Aliadas</p>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             ${partners.map(p => `
                                 <div class="p-6 bg-white/80 backdrop-blur rounded-2xl border border-slate-100 hover:-translate-y-1 transition duration-300 shadow-sm">
