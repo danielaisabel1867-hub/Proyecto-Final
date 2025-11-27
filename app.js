@@ -47,10 +47,10 @@ const JobService = {
 const ExternalApiService = {
     // Definición de socios fijos con sus logos locales
     _partners: [
-        { name: "Walmart El Salvador", type: "Retail", slogan: "Ahorra dinero, vive mejor.", logo: "imagenes/Logo Walmart.png" },
-        { name: "Escuela Mónica Herrera", type: "Educación", slogan: "Diseñando el futuro.", logo: "imagenes/Logo Monica Herrera.png" },
-        { name: "Excel Automotriz", type: "Automotriz", slogan: "Pasión por el movimiento.", logo: "imagenes/Logo Excel Automotriz.webp" },
-        { name: "Teleperformance", type: "BPO", slogan: "Líder global en servicios digitales.", logo: "imagenes/Logo Teleperformance.png" }
+        { name: "Walmart El Salvador", type: "Retail", slogan: "Ahorra dinero, vive mejor.", logo: "Imagenes/Logo Walmart.png" },
+        { name: "Escuela Mónica Herrera", type: "Educación", slogan: "Diseñando el futuro.", logo: "Imagenes/Logo Monica Herrera.png" },
+        { name: "Excel Automotriz", type: "Automotriz", slogan: "Pasión por el movimiento.", logo: "Imagenes/Logo Excel Automotriz.webp" },
+        { name: "Teleperformance", type: "BPO", slogan: "Líder global en servicios digitales.", logo: "Imagenes/Logo Teleperformance.png" }
     ],
 
     // Esta función simula la API call pero usa datos locales, quitando el fetch.
