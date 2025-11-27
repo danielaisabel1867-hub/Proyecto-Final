@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chambly - Tu primer empleo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen font-sans bg-slate-50">
+
+    <!-- HEADER -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 shadow-sm transition-all duration-300 no-print">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <!-- Logo -->
+              <div class="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform" onclick="app.renderHome()">
+                <img src="Imagenes/Logo .png" alt="Logo Chambly" class="w-10 h-10 object-contain rounded-lg">
+                
+                <span class="text-3xl font-black text-slate-900 tracking-tighter">CHAMBLY</span>
+            </div>
+
+            <!-- Menú Desktop -->
+            <nav class="hidden md:flex gap-10 text-sm font-bold text-slate-600 items-center">
+                <button onclick="app.renderHome()" class="hover:text-lime-600 transition-colors uppercase tracking-wide">Inicio</button>
+                <button onclick="app.renderSearch()" class="hover:text-lime-600 transition-colors uppercase tracking-wide">Buscar Chamba</button>
+                <button onclick="app.renderAcademia()" class="hover:text-lime-600 transition-colors flex items-center gap-2 uppercase tracking-wide">
+                    Academia 
+                    <span class="text-[10px] bg-lime-400 text-slate-900 px-2 py-0.5 rounded-full font-black animate-pulse">NUEVO</span>
+                </button>
+            </nav>
+
+            <!-- Iconos Usuario -->
+            <div class="flex items-center gap-6">
+                <!-- Notificaciones -->
+                <button class="relative p-2 text-slate-400 hover:bg-lime-50 hover:text-lime-600 rounded-full transition" onclick="ui.toggleNotifications()">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <span class="absolute top-2 right-2 w-3 h-3 bg-lime-500 rounded-full border-2 border-white animate-pulse"></span>
+                </button>
+                
+                <!-- Dropdown Notificaciones -->
+                <div id="notification-dropdown" class="hidden absolute top-20 right-4 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden ring-1 ring-black/5">
+                    <div class="p-4 border-b bg-slate-50/50 backdrop-blur flex justify-between items-center">
+                        <span class="font-bold text-slate-900 text-sm">Tus Notificaciones</span>
+                        <button class="text-xs text-lime-600 font-bold hover:underline">Leídas</button>
+                    </div>
+                    <div id="notification-list" class="max-h-[400px] overflow-y-auto"></div>
+                </div>
+
+                <!-- Perfil -->
+                <div class="flex items-center gap-3 cursor-pointer hover:bg-slate-100 p-1.5 pr-4 rounded-full transition group border border-transparent hover:border-slate-200" onclick="app.renderProfile()">
+                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-lime-400 overflow-hidden border-2 border-white shadow-md group-hover:scale-105 transition-transform">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div class="hidden md:flex flex-col">
+                        <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Hola,</span>
+                        <span id="header-username" class="text-sm font-bold text-slate-900 leading-none">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="app-content" class="flex-grow fade-in relative">
+        <!-- Loader inicial -->
+        <div class="absolute inset-0 flex items-center justify-center bg-slate-50 z-40">
+            <div class="flex flex-col items-center gap-4">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-lime-500"></div>
+                <p class="text-slate-400 font-bold animate-pulse">Cargando oportunidades...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 py-16 text-sm mt-auto border-t border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-12 mb-12">
+            <div class="col-span-2">
+                <div class="flex items-center gap-2 mb-6">
+                    <span class="text-2xl font-black text-white tracking-tighter">CHAMBLY</span>
+                    <span class="w-3 h-3 bg-lime-400 rounded-full"></span>
+                </div>
+                <p class="mb-6 text-slate-400 max-w-sm text-lg leading-relaxed">
+                    Somos la plataforma líder en El Salvador conectando talento joven con empresas visionarias dispuestas a enseñar.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="p-2 bg-slate-800 rounded-lg hover:bg-lime-400 hover:text-slate-900 transition"><i data-lucide="facebook"></i></a>
+                    <a href="#" class="p-2 bg-slate-800 rounded-lg hover:bg-lime-400 hover:text-slate-900 transition"><i data-lucide="instagram"></i></a>
+                    <a href="#" class="p-2 bg-slate-800 rounded-lg hover:bg-lime-400 hover:text-slate-900 transition"><i data-lucide="linkedin"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-xs">Plataforma</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" onclick="app.renderSearch()" class="hover:text-lime-400 transition">Buscar Empleo</a></li>
+                    <li><a href="#" onclick="app.renderAcademia()" class="hover:text-lime-400 transition">Academia</a></li>
+                    <li><a href="#" onclick="app.renderCVBuilder()" class="hover:text-lime-400 transition">Crear CV</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-xs">Legal</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" class="hover:text-lime-400 transition">Términos</a></li>
+                    <li><a href="#" class="hover:text-lime-400 transition">Privacidad</a></li>
+                    <li><a href="#" class="hover:text-lime-400 transition">Soporte</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-800 text-center text-slate-500">
+            <p>&copy; 2025 Chambly El Salvador. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <div id="job-details-modal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-50 sticky top-0 z-10">
+                <div class="flex gap-4">
+                    <div id="modal-job-logo" class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-md"></div>
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900" id="modal-job-title">Título</h3>
+                        <p class="text-slate-500 font-medium" id="modal-job-company">Empresa</p>
+                    </div>
+                </div>
+                <button onclick="ui.closeJobDetails()" class="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto">
+                <div class="flex gap-3 mb-6">
+                    <span id="modal-job-salary" class="bg-lime-100 text-lime-800 px-3 py-1 rounded-lg font-bold text-sm"></span>
+                    <span id="modal-job-type" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-bold text-sm border border-slate-200"></span>
+                    <span id="modal-job-location" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-bold text-sm border border-blue-100"></span>
+                </div>
+
+                <h4 class="font-bold text-lg text-slate-900 mb-2">Descripción</h4>
+                <p id="modal-job-desc" class="text-slate-600 leading-relaxed mb-6"></p>
+
+                <h4 class="font-bold text-lg text-slate-900 mb-2">Requisitos</h4>
+                <ul id="modal-job-reqs" class="list-disc pl-5 space-y-2 text-slate-600 mb-6"></ul>
+            </div>
+
+            <div class="p-6 border-t border-slate-100 bg-slate-50 sticky bottom-0 z-10 flex justify-end gap-3">
+                <button onclick="ui.closeJobDetails()" class="px-6 py-3 text-slate-600 font-bold hover:bg-slate-200 rounded-xl transition">Cerrar</button>
+                <button id="btn-apply-trigger" class="px-8 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg transition flex items-center gap-2">
+                    Aplicar Ahora <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: FORMULARIO DE APLICACIÓN -->
+    <div id="application-modal" class="hidden fixed inset-0 z-[60] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-lime-50">
+                <h3 class="text-lg font-black text-slate-900">Enviar Postulación</h3>
+                <button onclick="ui.closeApplicationModal()" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
+            </div>
+            <form class="p-8 space-y-6" onsubmit="app.handleApplicationSubmit(event)">
+                <div class="bg-white p-4 rounded-2xl border-2 border-slate-100 flex items-center gap-4">
+                    <div class="bg-lime-100 p-3 rounded-xl text-lime-700"><i data-lucide="file-text"></i></div>
+                    <div>
+                        <p class="font-bold text-slate-900" id="app-cv-name">Cargando...</p>
+                        <p class="text-xs text-slate-500">Se adjuntará tu perfil de Chambly</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-2">Mensaje breve</label>
+                    <textarea id="app-message" class="w-full p-4 border-2 border-slate-200 rounded-2xl focus:border-lime-400 focus:ring-0 outline-none transition" rows="3" placeholder="Hola, me interesa porque..." required minlength="10"></textarea>
+                </div>
+                <button type="submit" class="w-full py-4 bg-lime-400 text-slate-900 font-bold rounded-xl hover:bg-lime-500 shadow-xl shadow-lime-200/50 transition">ENVIAR</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
