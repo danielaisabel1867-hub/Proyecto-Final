@@ -43,9 +43,9 @@ const JobService = {
     getById: (id) => Promise.resolve(JobService._jobs.find(j => j.id === id))
 };
 
-// Mapaeo de Empresas
+// Empresa
 const ExternalApiService = {
-    // Definición de socios fijos con sus logos locales
+
     _partners: [
         { name: "Walmart El Salvador", type: "Retail", slogan: "Ahorra dinero, vive mejor.", logo: "Imagenes/Logo Walmart.png" },
         { name: "Escuela Mónica Herrera", type: "Educación", slogan: "Diseñando el futuro.", logo: "Imagenes/Logo Monica Herrera.png" },
@@ -53,7 +53,7 @@ const ExternalApiService = {
         { name: "Teleperformance", type: "BPO", slogan: "Líder global en servicios digitales.", logo: "Imagenes/Logo Teleperformance.png" }
     ],
 
-    // Esta función simula la API call pero usa datos locales, quitando el fetch.
+
     getPartners: function() {
         return Promise.resolve(this._partners);
     }
@@ -97,7 +97,7 @@ const StorageService = {
     }
 };
 
-// Servicio: Consume la API https://randomuser.me/api/ y devuelve el primer usuario
+// Servicio: API - Random User
 const RandomUserService = {
     getRandomUser: function() {
         return fetch('https://randomuser.me/api/')
@@ -605,10 +605,10 @@ const app = {
         updated.email = u.email || updated.email;
         updated.phone = u.phone || updated.phone;
         updated.location = `${u.location.city}, ${u.location.country}` || updated.location;
-        // Agrega una foto en caso de que exista
+    
         updated.photo = u.picture?.large || updated.photo || '';
         StorageService.save(updated);
-        // Mostrar cambios en la UI
+        
         this.renderCVBuilder();
     },
 
@@ -647,6 +647,6 @@ const app = {
 
 document.addEventListener('DOMContentLoaded', () => app.init());
 
-// Compatibilidad con la muestra del usuario: funciones globales con nombres sencillos
+// Compatibilidad con la muestra del usuario
 function mostrarDatos(data) { app.mostrarRandomUser(data); }
 function mostrarError(message) { app.mostrarError(message); }
